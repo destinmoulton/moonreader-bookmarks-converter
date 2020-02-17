@@ -25,11 +25,22 @@ def main(argv):
 
         print('Input file is "', inputfile)
         print('Output file is "', outputfile)
+        read_file_lines(inputfile)
 
 
 def print_help_and_exit():
     print('convert.py -i <inputfile> -o <outputfile>')
     sys.exit(2)
+
+
+def read_file_lines(input_file_name):
+    with open(input_file_name) as fp:
+        line = fp.readline()
+        cnt = 1
+        while line:
+            print("Line {}: {}".format(cnt, line.strip()))
+            line = fp.readline()
+            cnt += 1
 
 
 if __name__ == "__main__":

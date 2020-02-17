@@ -46,32 +46,41 @@ def read_file_lines(input_file_name):
 
         cnt = 1
         while line:
-            if len(line) > 1:
+            line = line.strip()
 
-                print("line[1] = {}".format(line[0]))
-                if line[0] == "▪":
-                    note = ""
-                    note_start = -1
-                    if line[-1] == ")":
-                        # Notes are in parens at the end
-                        note_start = line.rfind("(")
-                        note = line[note_start + 1:line.rfind(")")]
-
-                    # Highlight
-                    output.append("    - " + line[2:note_start])
-
-                    if note != "":
-                        output.append("        - `" + note + "`")
-
-                elif line[0] == "◆":
-
-                    # Chapter
-                    output.append("- " + line[2:])
-
+            output.append(convert_line_to_markdown(line)[:])
             line = fp.readline()
             cnt += 1
 
         pprint.pprint(output)
+
+
+def convert_line_to_markdown(line):
+    markdown = []
+    if len(line) > 1:
+
+        print("line[1] = {}".format(line[0]))
+        if line[0] == "▪":
+            note = ""
+            note_start = -1
+            print("line[-1] = " + line[-1])
+            if line[-1] == ")":
+                # Notes are in parens at the end
+                note_start = line.rfind("(")
+                note = line[note_start + 1:-1]
+
+            # Highlight
+            markdown.append("    - " + line[2:note_start])
+
+            if note != "":
+                markdown.append("        - NOTE: `" + note + "`")
+
+        elif line[0] == "◆":
+
+            # Chapter
+            markdown.append("- " + line[2:])
+
+    return markdown
 
 
 if __name__ == "__main__":

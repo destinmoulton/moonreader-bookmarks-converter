@@ -2,6 +2,7 @@
 
 import sys
 import getopt
+import pprint
 
 
 def main(argv):
@@ -34,13 +35,43 @@ def print_help_and_exit():
 
 
 def read_file_lines(input_file_name):
+    output = []
     with open(input_file_name) as fp:
         line = fp.readline()
+
+        # first line is the book title
+        output.append("## " + line)
+
+        line = fp.readline()
+
         cnt = 1
         while line:
-            print("Line {}: {}".format(cnt, line.strip()))
+            if len(line) > 1:
+
+                print("line[1] = {}".format(line[0]))
+                if line[0] == "▪":
+                    note = ""
+                    note_start = -1
+                    if line[-1] == ")":
+                        # Notes are in parens at the end
+                        note_start = line.rfind("(")
+                        note = line[note_start + 1:line.rfind(")")]
+
+                    # Highlight
+                    output.append("    - " + line[2:note_start])
+
+                    if note != "":
+                        output.append("        - `" + note + "`")
+
+                elif line[0] == "◆":
+
+                    # Chapter
+                    output.append("- " + line[2:])
+
             line = fp.readline()
             cnt += 1
+
+        pprint.pprint(output)
 
 
 if __name__ == "__main__":

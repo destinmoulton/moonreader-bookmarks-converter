@@ -3,6 +3,7 @@
 import sys
 import getopt
 import pprint
+import pyperclip
 
 
 def main(argv):
@@ -25,16 +26,25 @@ def main(argv):
     else:
 
         print('Input file is "', inputfile)
-        print('Output file is "', outputfile)
-        read_file_lines(inputfile)
+        lines = convert_file_to_markdown_list(inputfile)
+
+        if len(lines) > 1:
+            if outputfile != "":
+                write_output_file(outputfile, lines)
+                print("Markdown written to: " + outputfile)
+
+            print("Markdown copied to system clipboard")
+            copy_lines_to_clipboard(lines)
 
 
 def print_help_and_exit():
     print('convert.py -i <inputfile> -o <outputfile>')
+    print('\t-o <outputfile> is OPTIONAL')
+    print('\tMarkdown is copied to system clipboard.')
     sys.exit(2)
 
 
-def read_file_lines(input_file_name):
+def convert_file_to_markdown_list(input_file_name):
     output = []
     with open(input_file_name) as fp:
         line = fp.readline()
@@ -48,22 +58,20 @@ def read_file_lines(input_file_name):
         while line:
             line = line.strip()
 
-            output.append(convert_line_to_markdown(line)[:])
+            output = output + convert_line_to_markdown(line)
             line = fp.readline()
             cnt += 1
 
-        pprint.pprint(output)
+    return output
 
 
 def convert_line_to_markdown(line):
     markdown = []
     if len(line) > 1:
 
-        print("line[1] = {}".format(line[0]))
         if line[0] == "▪":
             note = ""
             note_start = -1
-            print("line[-1] = " + line[-1])
             if line[-1] == ")":
                 # Notes are in parens at the end
                 note_start = line.rfind("(")
@@ -81,6 +89,16 @@ def convert_line_to_markdown(line):
             markdown.append("- " + line[2:])
 
     return markdown
+
+
+def write_output_file(output_filename, output_lines):
+    with open(output_filename, mode="wt", encoding="utf-8") as fp:
+        fp.write('\n'.join(output_lines))
+
+
+def copy_lines_to_clipboard(output_lines):
+    # Use pyperclip to copy to the system clipboard
+    pyperclip.copy('\n'.join(output_lines))
 
 
 if __name__ == "__main__":
